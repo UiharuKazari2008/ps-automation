@@ -23,27 +23,28 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
 
     Write-Output "Remuxing Clips"
     foreach ($i in $(Get-ChildItem "${OTF_REC_FOLDER}CLIP*.ts" | Where-Object {$_.lastwritetime -ge (get-date).addhours(-12) -and $_.Attributes -eq "Archive"})) {
-        Write-Output "    $($i.Name) RENDER"
-        $LowRenderName="${OTF_REC_FOLDER}$($i.BaseName)-Discord.mp4"
-        & 'E:\Program Files\ffmpeg.exe' -hide_banner -loglevel panic -y -i "$($i.FullName)" -f mp4 -vcodec h264_nvenc -tune animation -preset slow -crf 22 -maxrate 750K -filter:v scale=640:-1 -acodec copy "${LowRenderName}"
+        Do {
+            Write-Output "    $($i.Name) RENDER"
+            $LowRenderName="${OTF_REC_FOLDER}$($i.BaseName)-Discord.mp4"
+            & 'E:\Program Files\ffmpeg.exe' -hide_banner -loglevel panic -y -i "$($i.FullName)" -f mp4 -vcodec h264_nvenc -tune animation -preset slow -crf 22 -maxrate 750K -filter:v scale=640:-1 -acodec copy "${LowRenderName}"
+        } until ( (Test-Path $LowRenderName) -and ($(Get-ChildItem -Path $LowRenderName).Length / 1024000 -gt 4) )
+        
+        Write-Output "    $($i.Name) => ${UPLOAD_FOLDER}VRChat Clips"
+        Copy-Item $LowRenderName "${UPLOAD_FOLDER}VRChat Clips\$($i.BaseName).mp4" -ErrorAction SilentlyContinue
 
-        if (Test-Path $LowRenderName) {
-            Write-Output "    $($i.Name) => ${UPLOAD_FOLDER}VRChat Photos"
-            Copy-Item $LowRenderName "${UPLOAD_FOLDER}VRChat Clips\$($i.BaseName).mp4" -ErrorAction SilentlyContinue
-            if (Test-Path "${UPLOAD_FOLDER}VRChat Clips\$($i.BaseName).mp4") {
-                Remove-Item $LowRenderName
-                $NewFile="${VRCHAT_PHOTO_FOLDER}$($i.BaseName).mp4"
-                & 'E:\Program Files\ffmpeg.exe' -hide_banner -y -loglevel panic -i "$($i.FullName)" -f mp4 -vcodec copy -acodec copy $NewFile
-                if (Test-Path $NewFile) {
-                    $object=$(Get-ChildItem $NewFile | Where-Object {! $_.PSIsContainer})
-                    $object.CreationTime = ($i.CreationTime)
-                    $object.LastWriteTime = ($i.LastWriteTime)
-                    Write-Output "    $($i.Name) => ${ARCHIVE_FOLDER}VRChat Photos"
-                    Copy-Item $NewFile "${ARCHIVE_FOLDER}VRChat Clips\$($i.BaseName).mp4" -ErrorAction SilentlyContinue
-                }
-                $i.attributes = $i.Attributes -bxor ([System.IO.FileAttributes]::Archive)
-                Remove-ItemSafely $i
+        if (Test-Path "${UPLOAD_FOLDER}VRChat Clips\$($i.BaseName).mp4") {
+            Remove-Item $LowRenderName
+            $NewFile="${VRCHAT_PHOTO_FOLDER}$($i.BaseName).mp4"
+            & 'E:\Program Files\ffmpeg.exe' -hide_banner -y -loglevel panic -i "$($i.FullName)" -f mp4 -vcodec copy -acodec copy $NewFile
+            if (Test-Path $NewFile) {
+                $object=$(Get-ChildItem $NewFile | Where-Object {! $_.PSIsContainer})
+                $object.CreationTime = ($i.CreationTime)
+                $object.LastWriteTime = ($i.LastWriteTime)
+                Write-Output "    $($i.Name) => ${ARCHIVE_FOLDER}VRChat Clips"
+                Copy-Item $NewFile "${ARCHIVE_FOLDER}VRChat Clips\$($i.BaseName).mp4" -ErrorAction SilentlyContinue
             }
+            $i.attributes = $i.Attributes -bxor ([System.IO.FileAttributes]::Archive)
+            Remove-ItemSafely $i
         }
     }
 
