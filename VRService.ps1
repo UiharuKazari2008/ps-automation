@@ -87,7 +87,8 @@ if ($args[0] -eq "start") {
             &"C:\Program Files\Oculus\Support\oculus-client\OculusClient.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
             # Move and Hide Window
-            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 2564 -Top 781 -Width 1072 -Height 768
+            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 1512 -Top 664 -Width 1037 -Height 768
+            Sleep -Seconds 5
             Get-Process OculusClient | Set-WindowState -State HIDE -ErrorAction SilentlyContinue
             Write-Output "Oculus is ready!"
         }
@@ -99,7 +100,7 @@ if ($args[0] -eq "start") {
             &"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrmonitor.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
             # Position Window
-            Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 2564 -Top -363
+            Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 2194 -Top 5
             Write-Output "SteamVR is ready!"
             # Play Start Tone
             (New-Object Media.SoundPlayer 'E:\Windows\Media\Windows Vista Sounds\Windows Print complete.wav').PlaySync()
@@ -112,7 +113,7 @@ if ($args[0] -eq "start") {
             Sleep -Seconds 1
             Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "VRCX" } | Measure-Object -line).Lines -gt 0)
             # Move and Minimize VRCX
-            Select-Window -ProcessName "VRCX" | Select-Object -Last 1 | Set-WindowPosition -Left 2555 -Top -362 -Width 1024 -Height 600
+            Select-Window -ProcessName "VRCX" | Select-Object -Last 1 | Set-WindowPosition -Left 1537 -Top 842 -Width 1024 -Height 600
             Get-Process VRCX | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             Write-Output "VRCX is ready!"
         }
@@ -125,7 +126,7 @@ if ($args[0] -eq "start") {
             Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "SSTweetToolForSteamVR" } | Measure-Object -line).Lines -gt 0)
             Sleep -Seconds 2
             # Move and Hide Window
-            Select-Window -ProcessName "SSTweetToolForSteamVR" | Select-Object -Last 1 | Set-WindowPosition -Left 3214 -Top -360 -Width 427 -Height 580
+            Select-Window -ProcessName "SSTweetToolForSteamVR" | Select-Object -Last 1 | Set-WindowPosition -Left 2124 -Top 854 -Width 427 -Height 580
             Get-Process SSTweetToolForSteamVR | Set-WindowState -State HIDE -ErrorAction SilentlyContinue
             Write-Output "Screenshot Tool is ready!"
         }
@@ -135,7 +136,7 @@ if ($args[0] -eq "start") {
             Sleep -Seconds 2
             Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
             # Move and Hide Window
-            #Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2639 -Top -328
+            #Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 1668 -Top 805
             #Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             #Write-Output "Kinect FBT is ready!"
         }
@@ -202,12 +203,12 @@ if ($args[0] -eq "start") {
                     $window=$(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1 | Get-WindowPosition)
                     # If Window is NOT minimzed
                     if ($window.Top -gt -1000) {
-                        if ( $window.Width -ne "1390" -or $window.Height -ne "1368" -or $window.Left -ne "1140" -or $window.Top -ne "33") {
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 1140 -Top 33
+                        if ( $window.Width -ne "1390" -or $window.Height -ne "1368" -or $window.Left -ne "1164" -or $window.Top -ne "68") {
+                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 1164 -Top 68
                             $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 1390 -Height 1368
                             Sleep -Milliseconds 100
                         }
-                        if ( $window.Width -eq "1390" -and $window.Height -eq "1368" -and $window.Left -eq "1140" -and $window.Top -eq "33") {
+                        if ( $window.Width -eq "1390" -and $window.Height -eq "1368" -and $window.Left -eq "1164" -and $window.Top -eq "68") {
                             Get-Process -Name VRChat | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
                         }                    
                     } else { $status="Complete" }

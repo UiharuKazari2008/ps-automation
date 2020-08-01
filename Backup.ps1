@@ -35,7 +35,7 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
         if (Test-Path "${UPLOAD_FOLDER}VRChat Clips\$($i.BaseName).mp4") {
             Remove-Item $LowRenderName
             $NewFile="${VRCHAT_PHOTO_FOLDER}$($i.BaseName).mp4"
-            & 'E:\Program Files\ffmpeg.exe' -hide_banner -y -loglevel panic -i "$($i.FullName)" -f mp4 -vcodec copy -acodec copy $NewFile
+            & 'E:\Program Files\ffmpeg.exe' -hide_banner -y -loglevel panic -i "$($i.FullName)" -f mp4 -vcodec copy -acodec copy -map 0 $NewFile
             if (Test-Path $NewFile) {
                 $object=$(Get-ChildItem $NewFile | Where-Object {! $_.PSIsContainer})
                 $object.CreationTime = ($i.CreationTime)
