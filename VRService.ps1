@@ -68,12 +68,15 @@ public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 if ($args[0] -eq "start") {
     if ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -eq 0) {
         Start-Transcript -Path "E:\Windows\Logs\StartVR.txt"
+        
+        Write-Output "Setting Audio Interface..."
+        &E:\Windows\Scripts\AudioSet.ps1 set-vr
+        
+        &E:\Windows\Scripts\VR.exe
 
         # VR System Jobs
         Start-Job -Name "VR-System-Oculus" -InitializationScript $Init {
             # Set Audio I/O to Razer Headset
-            Write-Output "Setting Audio Interface..."
-            &E:\Windows\Scripts\AudioSet.ps1 set-vr
             # Kill Oculus
             Write-Output "Setting up Oculus Hardware..."
             Stop-Process -Name "OculusClient" -Force -ErrorAction SilentlyContinue
@@ -278,6 +281,8 @@ if ($args[0] -eq "stop") {
         (New-Object Media.SoundPlayer 'E:\Windows\Media\Windows Vista Sounds\Windows Shutdown.wav').Play()
         
         Start-Transcript -Path "E:\Windows\Logs\StopVR.txt"
+
+        &E:\windows\Scripts\DarkModeSwitch.ps1
 
         # Start Backup Script
         Start-Job -Name "VR-Manage-Backup" {

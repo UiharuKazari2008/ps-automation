@@ -1,5 +1,6 @@
 ﻿     $OTF_REC_FOLDER="$([Environment]::GetFolderPath("MyVideos"))\OBS Recorder\OnTheFly\"
 $VRCHAT_PHOTO_FOLDER="$([Environment]::GetFolderPath("MyPictures"))\VRChat\"
+  $VRCHAT_REC_FOLDER="$([Environment]::GetFolderPath("MyVideos"))\OBS Recorder\VR\"
         $VRCHAT_LOGS="$([Environment]::GetEnvironmentVariable("LocalAppData"))Low\VRChat\VRChat\"
         $VRCHAT_DATA="$([Environment]::GetEnvironmentVariable("ProgramFiles(x86)"))\Steam\steamapps\common\VRChat\UserData\"
 
@@ -26,7 +27,7 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
         Do {
             Write-Output "    $($i.Name) RENDER"
             $LowRenderName="${OTF_REC_FOLDER}$($i.BaseName)-Discord.mp4"
-            & 'E:\Program Files\ffmpeg.exe' -hide_banner -loglevel panic -y -i "$($i.FullName)" -f mp4 -vcodec h264_nvenc -tune animation -preset slow -crf 22 -maxrate 750K -filter:v scale=640:-1 -acodec copy "${LowRenderName}"
+            & 'E:\Program Files\ffmpeg.exe' -hide_banner -loglevel panic -y -i "$($i.FullName)" -f mp4 -vcodec h264_nvenc -tune animation -preset slow -crf 15 -maxrate 500K -filter:v "scale=750:-1, fps=fps=24" -acodec aac -map 0:v:0 -map 0:a:0 "${LowRenderName}"
         } until ( (Test-Path $LowRenderName) -and ($(Get-ChildItem -Path $LowRenderName).Length / 1024000 -gt 4) )
         
         Write-Output "    $($i.Name) => ${UPLOAD_FOLDER}VRChat Clips"
@@ -47,6 +48,8 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
             Remove-ItemSafely $i
         }
     }
+    
+    Move-Item "${OTF_REC_FOLDER}*.ts" ${VRCHAT_REC_FOLDER}
 
     Write-Output "Backup Logs"
     foreach ($i in $(Get-ChildItem "${VRCHAT_LOGS}output*")) {
