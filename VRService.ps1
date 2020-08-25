@@ -90,9 +90,9 @@ if ($args[0] -eq "start") {
             &"C:\Program Files\Oculus\Support\oculus-client\OculusClient.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
             # Move and Hide Window
-            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 1512 -Top 664 -Width 1037 -Height 768
+            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 2523 -Top 1453 -Width 1037 -Height 768
             Sleep -Seconds 5
-            Get-Process OculusClient | Set-WindowState -State HIDE -ErrorAction SilentlyContinue
+            Get-Process OculusClient | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             Write-Output "Oculus is ready!"
         }
         Start-Job -Name "VR-System-SteamVR"-InitializationScript $Init {
@@ -129,7 +129,7 @@ if ($args[0] -eq "start") {
             Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "SSTweetToolForSteamVR" } | Measure-Object -line).Lines -gt 0)
             Sleep -Seconds 2
             # Move and Hide Window
-            Select-Window -ProcessName "SSTweetToolForSteamVR" | Select-Object -Last 1 | Set-WindowPosition -Left 2124 -Top 854 -Width 427 -Height 580
+            Select-Window -ProcessName "SSTweetToolForSteamVR" | Select-Object -Last 1 | Set-WindowPosition -Left 2545 -Top 1451 -Width 427 -Height 580
             Get-Process SSTweetToolForSteamVR | Set-WindowState -State HIDE -ErrorAction SilentlyContinue
             Write-Output "Screenshot Tool is ready!"
         }
@@ -137,11 +137,11 @@ if ($args[0] -eq "start") {
             # Wait for Driver4VR
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Measure-Object -line).Lines -gt 0)
             Sleep -Seconds 2
-            Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
+            #Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
             # Move and Hide Window
-            #Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 1668 -Top 805
-            #Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
-            #Write-Output "Kinect FBT is ready!"
+            Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2550 -Top 1450
+            Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
+            Write-Output "Kinect FBT is ready!"
         }
         Start-Job -Name "VR-Tool-OBS" {
             Start-ScheduledTask -TaskName "StartOBS" -TaskPath "Personal" # Start OBS
@@ -206,9 +206,9 @@ if ($args[0] -eq "start") {
                     $window=$(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1 | Get-WindowPosition)
                     # If Window is NOT minimzed
                     if ($window.Top -gt -1000) {
-                        if ( $window.Width -ne "1390" -or $window.Height -ne "1368" -or $window.Left -ne "1164" -or $window.Top -ne "68") {
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 1164 -Top 68
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 1390 -Height 1368
+                        if ( $window.Width -ne "2562" -or $window.Height -ne "2584" -or $window.Left -ne "2510" -or $window.Top -ne "1444") {
+                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 2510 -Top 1444
+                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 2562 -Height 2584
                             Sleep -Milliseconds 100
                         }
                         if ( $window.Width -eq "1390" -and $window.Height -eq "1368" -and $window.Left -eq "1164" -and $window.Top -eq "68") {
@@ -316,7 +316,7 @@ if ($args[0] -eq "stop") {
         Start-Job -Name "VR-Stop-VRChat" {
             Stop-ScheduledTask -TaskName StartVR -TaskPath Personal; Write-Host "Start VR Task Stopped!"
             Stop-Process -Name "VRChat" -Force -ErrorAction SilentlyContinue; Write-Host "VRChat Closed!"
-            &"E:\Windows\Scripts\AudioSet.ps1" set-speaker; Write-Host "Set Audio to Desktop!"
+            &"E:\Windows\Scripts\AudioSet.ps1" set-headset; Write-Host "Set Audio to Headset!"
         }
 
         # Shutdown VR
