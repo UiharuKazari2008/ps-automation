@@ -2,6 +2,7 @@
 $VRCHAT_PHOTO_FOLDER="$([Environment]::GetFolderPath("MyPictures"))\VRChat\"
   $VRCHAT_REC_FOLDER="$([Environment]::GetFolderPath("MyVideos"))\OBS Recorder\VR\"
         $VRCHAT_LOGS="$([Environment]::GetEnvironmentVariable("LocalAppData"))Low\VRChat\VRChat\"
+        $VRCHAT_LIBR="$([Environment]::GetEnvironmentVariable("LocalAppData"))Low\VRChat\VRChat\Library"
         $VRCHAT_DATA="$([Environment]::GetEnvironmentVariable("ProgramFiles(x86)"))\Steam\steamapps\common\VRChat\UserData\"
 
      $ARCHIVE_FOLDER="\\xochitl.nyti.ne.jp\Backups\"
@@ -60,7 +61,39 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
     }
 
     Write-Output "Backup Config"
-    Copy-Item ${VRCHAT_DATA}* "${ARCHIVE_FOLDER}VRChat Data\" -Recurse -ErrorAction SilentlyContinue -Force
+    Copy-Item "${VRCHAT_DATA}*" "${ARCHIVE_FOLDER}VRChat Data\" -Recurse -ErrorAction SilentlyContinue -Force
+    
+    Write-Output "Saving VRChat Asset URLs"
+    Get-Content "$([Environment]::GetEnvironmentVariable("LocalAppData"))\..\LocalLow\VRChat\VRChat\Library" |% {$_-replace "file", "`nfile"} | Set-Content "$([Environment]::GetEnvironmentVariable("LocalAppData"))\..\LocalLow\VRChat\VRChat\Library.parsed"
+
+    [System.Reflection.Assembly]::LoadFrom("C:\Program Files (x86)\MySQL\MySQL Connector Net 8.0.21\Assemblies\v4.5.2\MySql.Data.dll")
+    $myconnection = New-Object MySql.Data.MySqlClient.MySqlConnection
+    [string]$sMySQLUserName = 'remote-send'
+    [string]$sMySQLPW = 'rAQsjW!S!=B3N=*KAGp8yLT$e!jF7m4Nb2Vpq88s6ljhdklhsdlfal'
+    [string]$sMySQLDB = 'mydata'
+    [string]$sMySQLHost = 'shutaura.prod.nyti.ne.jp'
+    [string]$sConnectionString = "server="+$sMySQLHost+";port=3306;uid=" + $sMySQLUserName + ";pwd=" + $sMySQLPW + ";database="+$sMySQLDB
+    $oConnection = New-Object MySql.Data.MySqlClient.MySqlConnection($sConnectionString)
+    $Error.Clear()
+    try { $oConnection.Open() } catch { write-warning ("Could not open a connection to Database $sMySQLDB on Host $sMySQLHost. Error: "+$Error[0].ToString()) }
+
+    Get-Content "$([Environment]::GetEnvironmentVariable("LocalAppData"))\..\LocalLow\VRChat\VRChat\Library.parsed" | % { if($_ -match "file_") {
+        $mycommand = New-Object MySql.Data.MySqlClient.MySqlCommand
+        $mycommand.Connection = $oConnection
+        $mycommand.CommandText = “INSERT INTO vrc_assets (asseturl) VALUES ”
+
+        $mycommand = New-Object MySql.Data.MySqlClient.MySqlCommand
+        $mycommand.Connection=$oConnection
+        $mycommand.CommandText='
+        INSERT into `mydata`.`vrc_assets` (`asseturl`) VALUES(@url)'
+        $mycommand.Prepare()
+        $mycommand.Parameters.AddWithValue("@url", "https://api.vrchat.cloud/api/1/file/${_}file")
+
+        $mycommand.ExecuteNonQuery()
+    }}
+    $oConnection.Close()
+
+    Remove-Item "$([Environment]::GetEnvironmentVariable("LocalAppData"))\..\LocalLow\VRChat\VRChat\Library"
 }
 
 Write-Output "--------------------------------------------------"
