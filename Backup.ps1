@@ -29,7 +29,7 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
             Write-Output "    $($i.Name) RENDER"
             $LowRenderName="${OTF_REC_FOLDER}$($i.BaseName)-Discord.mp4"
             & 'E:\Program Files\ffmpeg.exe' -hide_banner -loglevel panic -y -i "$($i.FullName)" -f mp4 -vcodec h264_nvenc -tune animation -preset slow -crf 15 -maxrate 500K -filter:v "scale=750:-1, fps=fps=24" -acodec aac -map 0:v:0 -map 0:a:0 "${LowRenderName}"
-        } until ( (Test-Path $LowRenderName) -and ($(Get-ChildItem -Path $LowRenderName).Length / 1024000 -gt 4) )
+        } until ( (Test-Path $LowRenderName) -and ($(Get-ChildItem -Path $LowRenderName).Length / 1024000 -gt 1) )
         
         Write-Output "    $($i.Name) => ${UPLOAD_FOLDER}VRChat Clips"
         Copy-Item $LowRenderName "${UPLOAD_FOLDER}VRChat Clips\$($i.BaseName).mp4" -ErrorAction SilentlyContinue

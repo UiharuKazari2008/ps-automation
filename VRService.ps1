@@ -90,7 +90,7 @@ if ($args[0] -eq "start") {
             &"C:\Program Files\Oculus\Support\oculus-client\OculusClient.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
             # Move and Hide Window
-            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 2523 -Top 1453 -Width 1037 -Height 768
+            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 2580 -Top 474 -Width 1024 -Height 768
             Sleep -Seconds 5
             Get-Process OculusClient | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             Write-Output "Oculus is ready!"
@@ -102,8 +102,9 @@ if ($args[0] -eq "start") {
             # Start SteamVR
             &"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrmonitor.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
+            Sleep -Seconds 15
             # Position Window
-            Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 2194 -Top 5
+            Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 3347 -Top 176
             Write-Output "SteamVR is ready!"
             # Play Start Tone
             (New-Object Media.SoundPlayer 'E:\Windows\Media\Windows Vista Sounds\Windows Print complete.wav').PlaySync()
@@ -129,7 +130,7 @@ if ($args[0] -eq "start") {
             Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "SSTweetToolForSteamVR" } | Measure-Object -line).Lines -gt 0)
             Sleep -Seconds 2
             # Move and Hide Window
-            Select-Window -ProcessName "SSTweetToolForSteamVR" | Select-Object -Last 1 | Set-WindowPosition -Left 2545 -Top 1451 -Width 427 -Height 580
+            Select-Window -ProcessName "SSTweetToolForSteamVR" | Select-Object -Last 1 | Set-WindowPosition -Left 2564 -Top 182 -Width 427 -Height 580
             Get-Process SSTweetToolForSteamVR | Set-WindowState -State HIDE -ErrorAction SilentlyContinue
             Write-Output "Screenshot Tool is ready!"
         }
@@ -139,19 +140,22 @@ if ($args[0] -eq "start") {
             Sleep -Seconds 2
             #Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
             # Move and Hide Window
-            Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2550 -Top 1450
-            Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
+            Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2565 -Top 184
+            #Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             Write-Output "Kinect FBT is ready!"
         }
         Start-Job -Name "VR-Tool-OBS" {
             Start-ScheduledTask -TaskName "StartOBS" -TaskPath "Personal" # Start OBS
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "obs64" } | Measure-Object -line).Lines -gt 0)
+            Sleep -Seconds 5
+            Select-Window -ProcessName "obs64" | Select-Object -Last 1 | Set-WindowPosition -Left 3659 -Top 186 -Width 738 -Height 1052
             Write-Output "OBS Recorder is ready!"
             Sleep -Seconds 30
             
             #Ensure Scene is ready
             $actions = @(
-                "/hidesource=VRChat"
+                "/hidesource=Overlay",
+                "/hidesource=VRChat",
                 "/showsource=HeadsetInput",
                 "/showsource=HeadsetOutput",
                 "/mute=HeadsetInput",
@@ -206,12 +210,12 @@ if ($args[0] -eq "start") {
                     $window=$(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1 | Get-WindowPosition)
                     # If Window is NOT minimzed
                     if ($window.Top -gt -1000) {
-                        if ( $window.Width -ne "2562" -or $window.Height -ne "2584" -or $window.Left -ne "2510" -or $window.Top -ne "1444") {
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 2510 -Top 1444
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 2562 -Height 2584
+                        if ( $window.Width -ne "1084" -or $window.Height -ne "1107" -or $window.Left -ne "1474" -or $window.Top -ne "334") {
+                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 1474 -Top 334
+                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 1084 -Height 1107
                             Sleep -Milliseconds 100
                         }
-                        if ( $window.Width -eq "1390" -and $window.Height -eq "1368" -and $window.Left -eq "1164" -and $window.Top -eq "68") {
+                        if ( $window.Width -eq "1084" -and $window.Height -eq "1107" -and $window.Left -eq "1474" -and $window.Top -eq "334") {
                             Get-Process -Name VRChat | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
                         }                    
                     } else { $status="Complete" }
@@ -230,14 +234,12 @@ if ($args[0] -eq "start") {
                 $isVRChatRunning = $(Get-Process | Where-Object { $_.Name -Match "VRChat" } | Measure-Object -line).Lines
                 if ($isVRChatRunning -gt 0) {
                     $actions = @(
-                        "/showsource=VRChat"
                         "/showsource=HeadsetInput",
                         "/showsource=HeadsetOutput",
                         "/unmute=HeadsetInput",
                         "/unmute=HeadsetOutput",
-                        "/hidesource=VRChat\VRCView",
-                        "/delay=1",
-                        "/showsource=VRChat\VRCView"
+                        "/showsource=VRCView",
+                        "/showsource=Overlay"
                     )
                     $proc = Start-Process -WindowStyle hidden -filePath "OBSCommand.exe" -ArgumentList $actions -workingdirectory "E:\Program Files\OBSCommand\" -PassThru
                     $timeouted = $null
@@ -248,9 +250,9 @@ if ($args[0] -eq "start") {
                     }
                 } else {
                     $actions = @(
-                        "/hidesource=VRChat"
                         "/mute=HeadsetInput",
-                        "/mute=HeadsetOutput"
+                        "/mute=HeadsetOutput",
+                        "/hidesource=Overlay"
                     )
                     $proc = Start-Process -WindowStyle hidden -filePath "OBSCommand.exe" -ArgumentList $actions -workingdirectory "E:\Program Files\OBSCommand\" -PassThru
                     $timeouted = $null
@@ -261,7 +263,7 @@ if ($args[0] -eq "start") {
                     }
                 }
                 # Wait for me to launch VRChat
-                Sleep -Seconds 5
+                Sleep -Seconds 15
             }
         }
 
