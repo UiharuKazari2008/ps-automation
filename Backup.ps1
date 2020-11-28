@@ -66,4 +66,34 @@ if ($(Test-Path $ARCHIVE_FOLDER) -and $(Test-Path $UPLOAD_FOLDER)) {
     Remove-Item "$([Environment]::GetEnvironmentVariable("LocalAppData"))\..\LocalLow\VRChat\VRChat\Library"
 }
 
+Set-Location "E:\Users\kazari\Documents\Unity Projects\ava_emowolfboi"
+if ($(git status | Select-String -Pattern "nothing to commit" | Measure-Object -Line).Lines -cge 1) {
+    Write-Output "Avatar Repo is up to date!"
+} else {
+    Write-Output "Changes Found, will now now commit the updates!"
+    git add -A
+    git commit -m "Auto Backup from $(hostname) ($(Date))"
+    $proc = Start-Process -WindowStyle hidden -filePath "C:\Program Files\Git\bin\git.exe" -ArgumentList @("pull") -workingdirectory "E:\Users\kazari\Documents\Unity Projects\ava_emowolfboi" -PassThru
+    $timeouted = $null
+    $proc | Wait-Process -Timeout 120 -ErrorAction SilentlyContinue -ErrorVariable timeouted
+    if ($timeouted) { 
+        $proc | kill
+        Write-Output "Sorry, Took to long to submit!"
+    } elseif ($proc.ExitCode -eq 0) {
+        Write-Host "Changes have been pulled"
+    }
+
+    $proc = Start-Process -WindowStyle hidden -filePath "C:\Program Files\Git\bin\git.exe" -ArgumentList @("push") -workingdirectory "E:\Users\kazari\Documents\Unity Projects\ava_emowolfboi" -PassThru
+    $timeouted = $null
+    $proc | Wait-Process -Timeout 120 -ErrorAction SilentlyContinue -ErrorVariable timeouted
+    if ($timeouted) { 
+        $proc | kill
+        Write-Output "Sorry, Took to long to submit!"
+    } elseif ($proc.ExitCode -eq 0) {
+        Write-Host "Changes have been sent"
+    }
+}
+
+
+
 Write-Output "--------------------------------------------------"

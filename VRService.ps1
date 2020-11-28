@@ -90,21 +90,22 @@ if ($args[0] -eq "start") {
             &"C:\Program Files\Oculus\Support\oculus-client\OculusClient.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
             # Move and Hide Window
-            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 2580 -Top 474 -Width 1024 -Height 768
+            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 636 -Top 15 -Width 1280 -Height 1020
             Sleep -Seconds 5
             Get-Process OculusClient | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             Write-Output "Oculus is ready!"
         }
         Start-Job -Name "VR-System-SteamVR"-InitializationScript $Init {
             # Wait for Oculus to Start
-            Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
-            Write-Output "Setting up SteamVR..."
+            #Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
+            #Sleep -Seconds 60
+            #Write-Output "Setting up SteamVR..."
             # Start SteamVR
-            &"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrmonitor.exe"
+            #&"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrmonitor.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
             Sleep -Seconds 15
             # Position Window
-            Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 3347 -Top 176
+            Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 754 -Top 0
             Write-Output "SteamVR is ready!"
             # Play Start Tone
             (New-Object Media.SoundPlayer 'E:\Windows\Media\Windows Vista Sounds\Windows Print complete.wav').PlaySync()
@@ -117,7 +118,7 @@ if ($args[0] -eq "start") {
             Sleep -Seconds 1
             Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "VRCX" } | Measure-Object -line).Lines -gt 0)
             # Move and Minimize VRCX
-            Select-Window -ProcessName "VRCX" | Select-Object -Last 1 | Set-WindowPosition -Left 1537 -Top 842 -Width 1024 -Height 600
+            Select-Window -ProcessName "VRCX" | Select-Object -Last 1 | Set-WindowPosition -Left 900 -Top 3 -Width 1024 -Height 1044
             Get-Process VRCX | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
             Write-Output "VRCX is ready!"
         }
@@ -137,7 +138,7 @@ if ($args[0] -eq "start") {
         Start-Job -Name "VR-Tool-Driver4VR" -InitializationScript $Init {
             # Wait for Driver4VR
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Measure-Object -line).Lines -gt 0)
-            Sleep -Seconds 2
+            Sleep -Seconds 10r
             #Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
             # Move and Hide Window
             Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2565 -Top 184
@@ -180,7 +181,7 @@ if ($args[0] -eq "start") {
                     "https://github.com/HerpDerpinstine/NoSteamP2P/releases/latest/download/NoSteamP2P.dll",
                     "https://github.com/dave-kun/PlayerVolumeControl/releases/latest/download/PlayerVolumeControl.dll")  
             # MelonLoader URL
-            $MLURL = "https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.zip"
+            #$MLURL = "https://github.com/HerpDerpinstine/MelonLoader/releases/latest/download/MelonLoader.zip"
             # Update VRChat DLL's 
             foreach ($url in $Mods) {
                 $filename="D:\Program Files\Steam\steamapps\common\VRChat\Mods\" + $($url.Split("/")[-1])
@@ -188,14 +189,14 @@ if ($args[0] -eq "start") {
                 Invoke-WebRequest $url -OutFile $filename -ErrorAction SilentlyContinue
             }
             Write-Output "Updated Downloaded Files!"
-            if ($(Get-ChildItem "D:\Program Files\Steam\steamapps\common\VRChat\version.dll").lastwritetime -lt (get-date).addhours(-8)) {
-                Invoke-WebRequest $MLURL -OutFile $env:TEMP/MelonLoader.zip  -ErrorAction SilentlyContinue
-                & 'C:\Program Files\7-Zip\7z.exe' x $env:TEMP/MelonLoader.zip -o"D:\Program Files\Steam\steamapps\common\VRChat\" -y
-                Remove-Item $env:TEMP/MelonLoader.zip
-                Write-Output "Updated Melonloader!"
-            } else {
-                Write-Output "Already have updated MelonLoader!"
-            }
+            #if ($(Get-ChildItem "D:\Program Files\Steam\steamapps\common\VRChat\version.dll").lastwritetime -lt (get-date).addhours(-8)) {
+            #    Invoke-WebRequest $MLURL -OutFile $env:TEMP/MelonLoader.zip  -ErrorAction SilentlyContinue
+            #    & 'C:\Program Files\7-Zip\7z.exe' x $env:TEMP/MelonLoader.zip -o"D:\Program Files\Steam\steamapps\common\VRChat\" -y
+            #    Remove-Item $env:TEMP/MelonLoader.zip
+            #    Write-Output "Updated Melonloader!"
+            #} else {
+            #    Write-Output "Already have updated MelonLoader!"
+            #}
             
         }
 
@@ -210,12 +211,12 @@ if ($args[0] -eq "start") {
                     $window=$(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1 | Get-WindowPosition)
                     # If Window is NOT minimzed
                     if ($window.Top -gt -1000) {
-                        if ( $window.Width -ne "1084" -or $window.Height -ne "1107" -or $window.Left -ne "1474" -or $window.Top -ne "334") {
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 1474 -Top 334
+                        if ( $window.Width -ne "1084" -or $window.Height -ne "1107" -or $window.Left -ne "827" -or $window.Top -ne "7") {
+                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 827 -Top 7
                             $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 1084 -Height 1107
                             Sleep -Milliseconds 100
                         }
-                        if ( $window.Width -eq "1084" -and $window.Height -eq "1107" -and $window.Left -eq "1474" -and $window.Top -eq "334") {
+                        if ( $window.Width -eq "1084" -and $window.Height -eq "1107" -and $window.Left -eq "827" -and $window.Top -eq "7") {
                             Get-Process -Name VRChat | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
                         }                    
                     } else { $status="Complete" }
@@ -284,7 +285,8 @@ if ($args[0] -eq "stop") {
         
         Start-Transcript -Path "E:\Windows\Logs\StopVR.txt"
 
-        &E:\windows\Scripts\DarkModeSwitch.ps1
+        #&E:\windows\Scripts\DarkModeSwitch.ps1
+        &E:\Windows\Scripts\Normal.exe
 
         # Start Backup Script
         Start-Job -Name "VR-Manage-Backup" {
