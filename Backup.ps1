@@ -73,25 +73,8 @@ if ($(git status | Select-String -Pattern "nothing to commit" | Measure-Object -
     Write-Output "Changes Found, will now now commit the updates!"
     git add -A
     git commit -m "Auto Backup from $(hostname) ($(Date))"
-    $proc = Start-Process -WindowStyle hidden -filePath "C:\Program Files\Git\bin\git.exe" -ArgumentList @("pull") -workingdirectory "E:\Users\kazari\Documents\Unity Projects\ava_emowolfboi" -PassThru
-    $timeouted = $null
-    $proc | Wait-Process -Timeout 120 -ErrorAction SilentlyContinue -ErrorVariable timeouted
-    if ($timeouted) { 
-        $proc | kill
-        Write-Output "Sorry, Took to long to submit!"
-    } elseif ($proc.ExitCode -eq 0) {
-        Write-Host "Changes have been pulled"
-    }
-
-    $proc = Start-Process -WindowStyle hidden -filePath "C:\Program Files\Git\bin\git.exe" -ArgumentList @("push") -workingdirectory "E:\Users\kazari\Documents\Unity Projects\ava_emowolfboi" -PassThru
-    $timeouted = $null
-    $proc | Wait-Process -Timeout 120 -ErrorAction SilentlyContinue -ErrorVariable timeouted
-    if ($timeouted) { 
-        $proc | kill
-        Write-Output "Sorry, Took to long to submit!"
-    } elseif ($proc.ExitCode -eq 0) {
-        Write-Host "Changes have been sent"
-    }
+    git pull
+    git push
 }
 
 
