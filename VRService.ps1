@@ -285,7 +285,7 @@ if ($args[0] -eq "stop") {
         
         Start-Transcript -Path "E:\Windows\Logs\StopVR.txt"
 
-        #&E:\windows\Scripts\DarkModeSwitch.ps1
+        &E:\windows\Scripts\DarkModeSwitch.ps1
         &E:\Windows\Scripts\Normal.exe
 
         # Start Backup Script
