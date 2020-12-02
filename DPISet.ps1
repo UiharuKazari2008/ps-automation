@@ -1,15 +1,15 @@
-﻿cd 'HKCU:\Control Panel\Desktop\PerMonitorSettings\NEC67950Y001416NA_2F_07DA_7D^E419C8D1399EFEAF0813D295443CD2D2'
+﻿cd 'HKCU:\Control Panel\Desktop\PerMonitorSettings\DEL40E8XVNNT7CIAYVL_33_07E1_8C^C436303F5A08E0936E8BA7603BA70A4C'
 $val = Get-ItemProperty -Path . -Name "DpiValue"
 
 if ($args[0] -eq "status") {
-    if($val.DpiValue -ne 4294967294) { echo "true"} else { echo "false"}
+    if($val.DpiValue -ne 1) { echo "true"} else { echo "false"}
 } else {
-    if($val.DpiValue -ne 4294967295) {
+    if($val.DpiValue -ne 1) {
         Write-Host 'Change to 125% / 120 dpi'
-        Set-ItemProperty -Path . -Name DpiValue -Value 4294967295
+        Set-ItemProperty -Path . -Name DpiValue -Value 1
     } else { 
         Write-Host 'Change to 100% / 96 dpi'
-        Set-ItemProperty -Path . -Name DpiValue -Value 4294967294
+        Set-ItemProperty -Path . -Name DpiValue -Value 0
     }
 
 $source = @"

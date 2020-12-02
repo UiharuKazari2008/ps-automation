@@ -71,8 +71,6 @@ if ($args[0] -eq "start") {
         
         Write-Output "Setting Audio Interface..."
         &E:\Windows\Scripts\AudioSet.ps1 set-vr
-        
-        &E:\Windows\Scripts\VR.exe
 
         # VR System Jobs
         Start-Job -Name "VR-System-Oculus" -InitializationScript $Init {
@@ -103,6 +101,7 @@ if ($args[0] -eq "start") {
             # Start SteamVR
             #&"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrmonitor.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
+            Start-ScheduledTask -TaskPath Personal -TaskName Display-Desk
             Sleep -Seconds 15
             # Position Window
             Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 754 -Top 0
@@ -285,9 +284,6 @@ if ($args[0] -eq "stop") {
         
         Start-Transcript -Path "E:\Windows\Logs\StopVR.txt"
 
-        &E:\windows\Scripts\DarkModeSwitch.ps1
-        &E:\Windows\Scripts\Normal.exe
-
         # Start Backup Script
         Start-Job -Name "VR-Manage-Backup" {
             # Wait for OBS to stop
@@ -330,6 +326,8 @@ if ($args[0] -eq "stop") {
             Stop-Service OVRService; Write-Host "Oculus Services Shutdown!"
             Stop-Process -Name "OculusClient" -Force -ErrorAction SilentlyContinue
             Stop-Process -Name "Fixer" -Force -ErrorAction SilentlyContinue
+
+            Start-ScheduledTask -TaskPath Personal -TaskName Display-Clone
             
             Write-Output "Stopping SteamVR Client....."
             Stop-Process -Name "vrmonitor" -Force -ErrorAction SilentlyContinue; Write-Host "SteamVR Stopped!"
