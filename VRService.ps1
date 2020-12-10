@@ -326,9 +326,6 @@ if ($args[0] -eq "stop") {
             Stop-Service OVRService; Write-Host "Oculus Services Shutdown!"
             Stop-Process -Name "OculusClient" -Force -ErrorAction SilentlyContinue
             Stop-Process -Name "Fixer" -Force -ErrorAction SilentlyContinue
-
-            Start-ScheduledTask -TaskPath Personal -TaskName Display-Clone
-            
             Write-Output "Stopping SteamVR Client....."
             Stop-Process -Name "vrmonitor" -Force -ErrorAction SilentlyContinue; Write-Host "SteamVR Stopped!"
             
