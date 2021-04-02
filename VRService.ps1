@@ -70,7 +70,6 @@ if ($args[0] -eq "start") {
         Start-Transcript -Path "E:\Windows\Logs\StartVR.txt"
         
         Write-Output "Setting Audio Interface..."
-        &E:\Windows\Scripts\AudioSet.ps1 set-vr
 
         # VR System Jobs
         Start-Job -Name "VR-System-Oculus" -InitializationScript $Init {
@@ -91,6 +90,8 @@ if ($args[0] -eq "start") {
             Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 636 -Top 15 -Width 1280 -Height 1020
             Sleep -Seconds 5
             Get-Process OculusClient | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
+            Sleep -Seconds 5
+            Start-ScheduledTask -TaskPath Personal -TaskName Audio-VR
             Write-Output "Oculus is ready!"
         }
         Start-Job -Name "VR-System-SteamVR"-InitializationScript $Init {
@@ -101,7 +102,8 @@ if ($args[0] -eq "start") {
             # Start SteamVR
             #&"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrmonitor.exe"
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
-            Start-ScheduledTask -TaskPath Personal -TaskName Display-Desk
+            
+            Start-ScheduledTask -TaskPath Personal -TaskName Display-Off
             Sleep -Seconds 15
             # Position Window
             Select-Window -ProcessName "vrmonitor" | Select-Object -Last 1 | Set-WindowPosition -Left 754 -Top 0
@@ -199,33 +201,6 @@ if ($args[0] -eq "start") {
             
         }
 
-        # Manage VRChat Window (Forever Loop)
-        Start-Job -Name "VR-Manage-VRChat" -InitializationScript $Init {
-            # Wait for me to launch VRChat
-            Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "VRChat" } | Measure-Object -line).Lines -gt 0)
-            Sleep -Seconds 5
-            While ($true) {
-                # Move and Resize VRChat to 1:1 Aspect Ratio
-                Do {
-                    $window=$(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1 | Get-WindowPosition)
-                    # If Window is NOT minimzed
-                    if ($window.Top -gt -1000) {
-                        if ( $window.Width -ne "1084" -or $window.Height -ne "1107" -or $window.Left -ne "827" -or $window.Top -ne "7") {
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Left 827 -Top 7
-                            $(Select-Window -ProcessName "VRChat" | Where-Object { $_.Title -Match "VRChat" } | Select-Object -First 1) | Set-WindowPosition -Width 1084 -Height 1107
-                            Sleep -Milliseconds 100
-                        }
-                        if ( $window.Width -eq "1084" -and $window.Height -eq "1107" -and $window.Left -eq "827" -and $window.Top -eq "7") {
-                            Get-Process -Name VRChat | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
-                        }                    
-                    } else { $status="Complete" }
-                    Sleep -Seconds 1
-                } until ($status -eq "Complete")
-                # Look for VRChat Crash
-                Sleep -Seconds 5
-            }
-        }
-
         # Manage OBS for VRChat (Forever Loop)
         Start-Job -Name "VR-Manage-OBS" -InitializationScript $Init {
             # Wait for SteamVR
@@ -316,7 +291,7 @@ if ($args[0] -eq "stop") {
         Start-Job -Name "VR-Stop-VRChat" {
             Stop-ScheduledTask -TaskName StartVR -TaskPath Personal; Write-Host "Start VR Task Stopped!"
             Stop-Process -Name "VRChat" -Force -ErrorAction SilentlyContinue; Write-Host "VRChat Closed!"
-            &"E:\Windows\Scripts\AudioSet.ps1" set-headset; Write-Host "Set Audio to Headset!"
+            Start-ScheduledTask -TaskPath Personal -TaskName Audio-Headset; E:/Windows/Scripts/AudioSet.ps1 set-mic-headset; Write-Host "Set Audio to Headset!"
         }
 
         # Shutdown VR
@@ -346,6 +321,6 @@ if ($args[0] -eq "stop") {
     }
 }
 if ($args[0] -eq "status") {
-    if ($(Get-Process | Where-Object { $_.Name -Match "OculusClient" } | Measure-Object -line).Lines -gt 0) {echo "true"} else {echo "false"}
+    if (($(Get-Service -Name OVRService).Status -like "*Runn*") -or ($(Get-ScheduledTask -TaskName StartVR -TaskPath '\Personal\').State -notlike "*Read*")) {echo "true"} else {echo "false"}
 }
 exit
