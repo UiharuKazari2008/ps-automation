@@ -5,6 +5,12 @@ While ($true) {
     Do { Sleep -Seconds 5 } until ($(Get-Process | Where-Object { $_.Name -Match "VRChat" } | Measure-Object -line).Lines -gt 0)
     Sleep -Seconds 5
     $isVRActive=$($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
+    if ($isVRActive) {
+        if ($(Get-Process | Where-Object { $_.Name -Match "obs64" } | Measure-Object -line).Lines -lt 1) {
+            Start-ScheduledTask -TaskName "StartOBS" -TaskPath "Personal" # Start OBS
+        }
+        Invoke-WebRequest http://192.168.100.62:3001/button-emmbtn6?event=double-press -ErrorAction SilentlyContinue 
+    }
     Do {
         # Get Mode Sepecific Window Settings
         #                      X     Y    W     H

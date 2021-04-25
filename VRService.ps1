@@ -66,34 +66,8 @@ public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 }
 }
 if ($args[0] -eq "start") {
-    if ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -eq 0) {
         Start-Transcript -Path "E:\Windows\Logs\StartVR.txt"
-        
-        Write-Output "Setting Audio Interface..."
 
-        # VR System Jobs
-        Start-Job -Name "VR-System-Oculus" -InitializationScript $Init {
-            # Set Audio I/O to Razer Headset
-            # Kill Oculus
-            Write-Output "Setting up Oculus Hardware..."
-            Stop-Process -Name "OculusClient" -Force -ErrorAction SilentlyContinue
-            # Boot Oculus Service
-            Start-Service OVRService
-            Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "OVRRedir" } | Measure-Object -line).Lines -gt 0)
-            Write-Host "Oculus Service started!"
-            Sleep -Seconds 5
-
-            # Start Oculus Client
-            &"C:\Program Files\Oculus\Support\oculus-client\OculusClient.exe"
-            Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
-            # Move and Hide Window
-            Select-Window -ProcessName "OculusClient" | Select-Object -Last 1 | Set-WindowPosition -Left 636 -Top 15 -Width 1280 -Height 1020
-            Sleep -Seconds 5
-            Get-Process OculusClient | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
-            Sleep -Seconds 5
-            Start-ScheduledTask -TaskPath Personal -TaskName Audio-VR
-            Write-Output "Oculus is ready!"
-        }
         Start-Job -Name "VR-System-SteamVR"-InitializationScript $Init {
             # Wait for Oculus to Start
             #Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "OculusDash" } | Measure-Object -line).Lines -gt 0)
@@ -113,16 +87,16 @@ if ($args[0] -eq "start") {
         }
 
         # VR Tools
-        Start-Job -Name "VR-Tool-VRCX" -InitializationScript $Init {
-            # If VRCX is not open, Launch it
-            if ($(Get-Process | Where-Object { $_.Name -Match "VRCX" } | Measure-Object -line).Lines -eq 0) { &"E:\Program Files\VRCX\VRCX.exe" } else { Write-Host "VRCX was already open!" }
-            Sleep -Seconds 1
-            Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "VRCX" } | Measure-Object -line).Lines -gt 0)
-            # Move and Minimize VRCX
-            Select-Window -ProcessName "VRCX" | Select-Object -Last 1 | Set-WindowPosition -Left 900 -Top 3 -Width 1024 -Height 1044
-            Get-Process VRCX | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
-            Write-Output "VRCX is ready!"
-        }
+        #Start-Job -Name "VR-Tool-VRCX" -InitializationScript $Init {
+        #    # If VRCX is not open, Launch it
+        #    if ($(Get-Process | Where-Object { $_.Name -Match "VRCX" } | Measure-Object -line).Lines -eq 0) { &"E:\Program Files\VRCX\VRCX.exe" } else { Write-Host "VRCX was already open!" }
+        #    Sleep -Seconds 1
+        #    Do { Sleep -Milliseconds 250 } until ($(Get-Process | Where-Object { $_.Name -Match "VRCX" } | Measure-Object -line).Lines -gt 0)
+        #    # Move and Minimize VRCX
+        #    Select-Window -ProcessName "VRCX" | Select-Object -Last 1 | Set-WindowPosition -Left 900 -Top 3 -Width 1024 -Height 1044
+        #    Get-Process VRCX | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
+        #    Write-Output "VRCX is ready!"
+        #}
         Start-Job -Name "VR-Tool-SSTweetToolForSteamVR" -InitializationScript $Init {
             # Wait for SteamVR
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0)
@@ -136,18 +110,17 @@ if ($args[0] -eq "start") {
             Get-Process SSTweetToolForSteamVR | Set-WindowState -State HIDE -ErrorAction SilentlyContinue
             Write-Output "Screenshot Tool is ready!"
         }
-        Start-Job -Name "VR-Tool-Driver4VR" -InitializationScript $Init {
-            # Wait for Driver4VR
-            Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Measure-Object -line).Lines -gt 0)
-            Sleep -Seconds 10r
-            #Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
-            # Move and Hide Window
-            Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2565 -Top 184
-            #Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
-            Write-Output "Kinect FBT is ready!"
-        }
+        #Start-Job -Name "VR-Tool-Driver4VR" -InitializationScript $Init {
+        #    # Wait for Driver4VR
+        #    Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Measure-Object -line).Lines -gt 0)
+        #    Sleep -Seconds 10
+        #    #Get-Process | Where-Object { $_.Name -Match "Driver4VR" } | Stop-Process
+        #    # Move and Hide Window
+        #    Select-Window -ProcessName "Driver4VR" | Select-Object -Last 1 | Set-WindowPosition -Left 2565 -Top 184
+        #    #Get-Process Driver4VR | Set-WindowState -State MINIMIZE -ErrorAction SilentlyContinue
+        #    Write-Output "Kinect FBT is ready!"
+        #}
         Start-Job -Name "VR-Tool-OBS" {
-            Start-ScheduledTask -TaskName "StartOBS" -TaskPath "Personal" # Start OBS
             Do { Sleep -Seconds 1 } until ($(Get-Process | Where-Object { $_.Name -Match "obs64" } | Measure-Object -line).Lines -gt 0)
             Sleep -Seconds 5
             Select-Window -ProcessName "obs64" | Select-Object -Last 1 | Set-WindowPosition -Left 3659 -Top 186 -Width 738 -Height 1052
@@ -242,19 +215,13 @@ if ($args[0] -eq "start") {
             }
         }
 
-        Do {
-            Get-Job | Receive-Job
-            Sleep -Seconds 1
-        } until ($(Get-Job -State Running | Where-Object { $_.Name -notmatch "VR-Manage-*" } | Measure-Object -line).Lines -lt 1)
+        Do { Get-Job | Receive-Job; Sleep -Seconds 1 } until ($(Get-Job -State Running | Where-Object { $_.Name -notmatch "VR-Manage-*" } | Measure-Object -line).Lines -lt 1)
         Write-Host "======= Start up complete, Passing the torch off to the Manager. Bye! ======="
         Stop-Transcript
         Get-Job -State Completed | Remove-Job
         Do { Sleep -Seconds 120 } until ($(Get-Job -State Running | Measure-Object -line).Lines -lt 1)
-    }
 }
 if ($args[0] -eq "stop") {
-    if ($(Get-Process | Where-Object { $_.Name -Match "OculusClient" } | Measure-Object -line).Lines -gt 0 -OR 
-        $(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0) {
         (New-Object Media.SoundPlayer 'E:\Windows\Media\Windows Vista Sounds\Windows Shutdown.wav').Play()
         
         Start-Transcript -Path "E:\Windows\Logs\StopVR.txt"
@@ -291,7 +258,6 @@ if ($args[0] -eq "stop") {
         Start-Job -Name "VR-Stop-VRChat" {
             Stop-ScheduledTask -TaskName StartVR -TaskPath Personal; Write-Host "Start VR Task Stopped!"
             Stop-Process -Name "VRChat" -Force -ErrorAction SilentlyContinue; Write-Host "VRChat Closed!"
-            Start-ScheduledTask -TaskPath Personal -TaskName Audio-Headset; E:/Windows/Scripts/AudioSet.ps1 set-mic-headset; Write-Host "Set Audio to Headset!"
         }
 
         # Shutdown VR
@@ -315,12 +281,8 @@ if ($args[0] -eq "stop") {
             Get-Job | Receive-Job
             Sleep -Seconds 1
         } until ($(Get-Job -State Running | Measure-Object -line).Lines -lt 1)
-        exit
-    } else {
-        exit
-    }
 }
 if ($args[0] -eq "status") {
-    if (($(Get-Service -Name OVRService).Status -like "*Runn*") -or ($(Get-ScheduledTask -TaskName StartVR -TaskPath '\Personal\').State -notlike "*Read*")) {echo "true"} else {echo "false"}
+    if ($(Get-Process | Where-Object { $_.Name -Match "vrmonitor" } | Measure-Object -line).Lines -gt 0 -or ($(Get-ScheduledTask -TaskName StartVR -TaskPath '\Personal\').State -notlike "*Read*")) {echo "true"} else {echo "false"}
 }
 exit
